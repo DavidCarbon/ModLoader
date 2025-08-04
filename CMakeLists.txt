@@ -15,7 +15,8 @@ file(
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 
 # --- Handle External System Libraries ---
-
+find_package(ZLIB REQUIRED)
+find_package(OpenSSL REQUIRED)
 # Json library
 CPMAddPackage("gh:nlohmann/json@3.12.0")
 # fmt library 
@@ -23,15 +24,9 @@ CPMAddPackage("gh:fmtlib/fmt#11.2.0")
 # cpr library 
 CPMAddPackage("gh:libcpr/cpr#1.12.0")
 # bit7z library
-CPMAddPackage("gh:rikyoz/bit7z@4.0.10")
+CPMAddPackage("gh:rikyoz/bit7z@2.1.0")
 # Detours library
 CPMAddPackage("gh:microsoft/Detours#9764cebcb1a75940e68fa83d6730ffaf0f669401")
-
-# --- Handle External System Libraries ---
-
-# These are still expected to be installed on the system.
-find_package(ZLIB REQUIRED)
-find_package(OpenSSL REQUIRED)
 
 # --- The Main Executable/Library ---
 add_library(ModLoader SHARED

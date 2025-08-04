@@ -10,9 +10,9 @@
 #include <fstream>
 #include <memory>
 #include <utility>
-#include <bit7z/bitfileextractor.hpp>
+#include <bitfileextractor.hpp>
 #include <fmt/format.h>
-#include <bit7z/bitarchivereader.hpp>
+#include <bitarchiveinfo.hpp>
 
 static const unsigned char key_xor_table[] = {
         0x94, 0xce, 0xc3, 0xae, 0x73, 0xf9, 0xf1, 0xb9
@@ -73,9 +73,9 @@ std::shared_ptr<mod_package> mod_package_loader::load() {
     }
 
     // Set up 7z interface
-    bit7z::Bit7zLibrary lib{ "7z.dll" };
-    bit7z::BitFileExtractor extractor{ lib, bit7z::BitFormat::Zip };
-    bit7z::BitArchiveReader arc{ lib, m_path_.wstring(), bit7z::BitFormat::Zip };
+    bit7z::Bit7zLibrary lib(L"7z.dll");
+    bit7z::BitExtractor extractor(lib, bit7z::BitFormat::Zip);
+    bit7z::BitArchiveInfo arc(lib, m_path_.wstring(), bit7z::BitFormat::Zip);
 
     extractor.setPassword(utf8_to_wstring(archive_key));
 
