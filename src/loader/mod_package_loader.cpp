@@ -73,9 +73,9 @@ std::shared_ptr<mod_package> mod_package_loader::load() {
     }
 
     // Set up 7z interface
-    bit7z::Bit7zLibrary lib(L"7z.dll");
-    bit7z::BitFileExtractor extractor(lib, bit7z::BitFormat::Zip);
-    bit7z::BitArchiveReader arc(lib, m_path_.wstring(), bit7z::BitFormat::Zip);
+    bit7z::Bit7zLibrary lib{ "7z.dll" };
+    bit7z::BitFileExtractor extractor{ lib, bit7z::BitFormat::Zip };
+    bit7z::BitArchiveReader arc{ lib, m_path_.wstring(), bit7z::BitFormat::Zip };
 
     extractor.setPassword(utf8_to_wstring(archive_key));
 
