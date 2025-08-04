@@ -74,6 +74,7 @@ void load_server_mods(std::shared_ptr<mod_file_linker> &linker, std::vector<mod_
 }
 
 BOOL WINAPI ShutDownModLoader() {
+	//TODO Add Cleanup of .links files/folders
     return TRUE;
 }
 

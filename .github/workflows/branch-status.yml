@@ -1,0 +1,50 @@
+name: Branch Status
+
+on:
+  push:
+    branches:
+      - 'development'
+      - 'feature/**'
+  pull_request:
+    branches:
+      - 'development'
+
+jobs:
+  build:
+    name: Build on windows-latest
+    runs-on: windows-latest
+        
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+        
+      - name: Install build tools and dependencies (Windows)
+        run: |
+          # Install Meson and Ninja for building Cpr dependencies
+          pip install meson ninja
+          # Use vcpkg to install zlib. This is the most reliable way.
+          vcpkg install zlib
+          
+      - name: Configure CMake
+        run: |
+          # We must tell CMake where the vcpkg toolchain file is located.
+          # The path is a fixed location on the GitHub Actions runner.
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          
+      - name: Build project
+        run: |
+          cmake --build build --config Debug
+          
+      - name: Create archive
+        run: |
+          cd build
+          7z a ModLoader-${{ runner.os }}.zip Debug/*
+        shell: bash
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ModLoader-${{ runner.os }}-${{ github.sha }}
+          path: build/ModLoader-${{ runner.os }}.zip

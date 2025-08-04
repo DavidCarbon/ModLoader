@@ -1,23 +1,93 @@
-cmake_minimum_required(VERSION 3.15)
-project(ModLoader)
+cmake_minimum_required(VERSION 3.11) # Set to a modern version for better features
+project(ModLoader VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
-find_package(nlohmann_json CONFIG REQUIRED)
-find_package(cpr CONFIG REQUIRED)
-find_package(fmt CONFIG REQUIRED)
+include(FetchContent)
+
+# --- Handle External System Libraries ---
+
+# Json library (Header-only library, from a specific release tarball)
+FetchContent_Declare(nlohmann_json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
+FetchContent_MakeAvailable(nlohmann_json)
+# fmt library (Header-only library, from its git repository)
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 11.2.0 # Use a specific tag for stability
+)
+FetchContent_MakeAvailable(fmt)
+# cpr library (Requires building, from its git repository)
+# CPR also needs OpenSSL, so ensure that find_package() is called before building CPR.
+FetchContent_Declare(
+    cpr
+    GIT_REPOSITORY https://github.com/libcpr/cpr.git
+    GIT_TAG 1.12.0 # Use a specific tag for stability
+)
+FetchContent_MakeAvailable(cpr)
+# --- Handle External System Libraries ---
+
+# These are still expected to be installed on the system.
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-add_subdirectory(libraries/bit7z)
-target_include_directories(bit7z PUBLIC libraries/bit7z/include ${ZLIB_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
-include_directories(libraries/detours/src)
-link_directories(libraries/detours/lib.x86)
-add_library(ModLoader SHARED src/Memory.hpp src/Memory.cpp src/library.cpp src/stdafx.hpp src/server/modding_info.hpp src/server/servertalk.cpp src/server/servertalk.hpp src/server/servertalkexception.hpp src/utils.hpp src/utils.cpp src/server/modding_info.cpp src/loader/mod_package_loader.cpp src/loader/mod_package_loader.hpp src/loader/mod_package.cpp src/loader/mod_package.hpp src/loader/server_mod_loader.cpp src/loader/server_mod_loader.hpp src/loader/mod_loader_exception.hpp src/md5.hpp src/md5.cpp src/loader/mod_package_header.hpp src/loader/mod_package_item.cpp src/loader/mod_package_item.hpp src/linker/mod_file_linker.cpp src/linker/mod_file_linker.hpp src/linker/mod_file_link_info.hpp src/linker/mod_file_linker_exception.hpp src/patches/bypass_patches.hpp src/patches/custom_crash_handler.hpp src/exception.hpp src/patches/custom_crash_handler.cpp src/httplib.hpp src/url.hpp src/url.cpp)
-target_link_libraries(ModLoader PRIVATE cpr ZLIB::ZLIB fmt::fmt nlohmann_json bit7z detours ${ZLIB_LIBRARIES} ${OPENSSL_LIBRARIES})
+# --- Handle Git Submodules (Bundled Dependencies) ---
 
+# bit7z library
+add_subdirectory(libraries/bit7z)
+# detours is a pre-compiled library. We create an imported target for it.
+add_library(detours STATIC IMPORTED)
+set_target_properties(detours PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/libraries/detours/lib.x86/detours.lib"
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/libraries/detours/src"
+)
+
+# --- The Main Executable/Library ---
+add_library(ModLoader SHARED
+    # A cleaner way to list source files using file(GLOB)
+    src/Memory.hpp src/Memory.cpp
+    src/library.cpp src/stdafx.hpp
+    src/utils.hpp src/utils.cpp
+    src/md5.hpp src/md5.cpp
+    src/exception.hpp
+    src/httplib.hpp
+    src/url.hpp src/url.cpp
+    
+    src/server/modding_info.hpp src/server/modding_info.cpp
+    src/server/servertalk.cpp src/server/servertalk.hpp src/server/servertalkexception.hpp
+    
+    src/loader/mod_package_loader.cpp src/loader/mod_package_loader.hpp
+    src/loader/mod_package.cpp src/loader/mod_package.hpp
+    src/loader/server_mod_loader.cpp src/loader/server_mod_loader.hpp
+    src/loader/mod_loader_exception.hpp
+    src/loader/mod_package_header.hpp
+    src/loader/mod_package_item.cpp src/loader/mod_package_item.hpp
+    
+    src/linker/mod_file_linker.cpp src/linker/mod_file_linker.hpp
+    src/linker/mod_file_link_info.hpp src/linker/mod_file_linker_exception.hpp
+    
+    src/patches/bypass_patches.hpp
+    src/patches/custom_crash_handler.hpp src/patches/custom_crash_handler.cpp
+)
+
+# --- Link all targets using modern, consistent names ---
+target_link_libraries(ModLoader PRIVATE
+    # System Libraries
+    ZLIB::ZLIB
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    # Dependencies downloaded by FetchContent
+    nlohmann_json::nlohmann_json
+    fmt::fmt
+    cpr::cpr
+	# Local Dependencies
+    bit7z
+    detours
+)
+
+# --- Set Target Properties ---
 set_target_properties(
-        ModLoader
-        PROPERTIES
-        OUTPUT_NAME "ModLoader"
-        SUFFIX ".asi"
+    ModLoader
+    PROPERTIES
+    OUTPUT_NAME "ModLoader"
+    SUFFIX ".asi"
 )
