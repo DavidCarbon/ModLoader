@@ -1,29 +1,29 @@
-cmake_minimum_required(VERSION 3.11) # Set to a modern version for better features
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR) # Set to a modern version for better features
 project(ModLoader VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
-include(FetchContent)
+
+# --- Include CMake Core dependencies ---
+
+# Download CPM.cmake
+file(
+  DOWNLOAD
+  https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.42.0/CPM.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+  EXPECTED_HASH SHA256=2020b4fc42dba44817983e06342e682ecfc3d2f484a581f11cc5731fbe4dce8a
+)
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 
 # --- Handle External System Libraries ---
 
-# Json library (Header-only library, from a specific release tarball)
-FetchContent_Declare(nlohmann_json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-FetchContent_MakeAvailable(nlohmann_json)
-# fmt library (Header-only library, from its git repository)
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 11.2.0 # Use a specific tag for stability
-)
-FetchContent_MakeAvailable(fmt)
-# cpr library (Requires building, from its git repository)
-# CPR also needs OpenSSL, so ensure that find_package() is called before building CPR.
-FetchContent_Declare(
-    cpr
-    GIT_REPOSITORY https://github.com/libcpr/cpr.git
-    GIT_TAG 1.12.0 # Use a specific tag for stability
-)
-FetchContent_MakeAvailable(cpr)
+# Json library
+CPMAddPackage("gh:nlohmann/json@3.12.0")
+# fmt library 
+CPMAddPackage("gh:fmtlib/fmt#11.2.0")
+# cpr library 
+CPMAddPackage("gh:libcpr/cpr#1.12.0")
+# bit7z library
+CPMAddPackage("gh:rikyoz/bit7z@4.0.10")
 # --- Handle External System Libraries ---
 
 # These are still expected to be installed on the system.
@@ -31,9 +31,6 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 # --- Handle Git Submodules (Bundled Dependencies) ---
-
-# bit7z library
-add_subdirectory(libraries/bit7z)
 # detours is a pre-compiled library. We create an imported target for it.
 add_library(detours STATIC IMPORTED)
 set_target_properties(detours PROPERTIES
@@ -71,16 +68,16 @@ add_library(ModLoader SHARED
 
 # --- Link all targets using modern, consistent names ---
 target_link_libraries(ModLoader PRIVATE
-    # System Libraries
+    # System Libraries (Manually Installed)
     ZLIB::ZLIB
     OpenSSL::SSL
     OpenSSL::Crypto
-    # Dependencies downloaded by FetchContent
+    # Dependencies downloaded by CPMAddPackage
     nlohmann_json::nlohmann_json
     fmt::fmt
     cpr::cpr
-	# Local Dependencies
-    bit7z
+	bit7z
+	# Local Dependencies (Manually Installed or Build from Source)
     detours
 )
 
