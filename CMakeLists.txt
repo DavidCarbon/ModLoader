@@ -24,19 +24,14 @@ CPMAddPackage("gh:fmtlib/fmt#11.2.0")
 CPMAddPackage("gh:libcpr/cpr#1.12.0")
 # bit7z library
 CPMAddPackage("gh:rikyoz/bit7z@4.0.10")
+# Detours library
+CPMAddPackage("gh:microsoft/Detours#9764cebcb1a75940e68fa83d6730ffaf0f669401")
+
 # --- Handle External System Libraries ---
 
 # These are still expected to be installed on the system.
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
-
-# --- Handle Git Submodules (Bundled Dependencies) ---
-# detours is a pre-compiled library. We create an imported target for it.
-add_library(detours STATIC IMPORTED)
-set_target_properties(detours PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/libraries/detours/lib.x86/detours.lib"
-    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/libraries/detours/src"
-)
 
 # --- The Main Executable/Library ---
 add_library(ModLoader SHARED
