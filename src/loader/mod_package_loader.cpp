@@ -10,9 +10,9 @@
 #include <fstream>
 #include <memory>
 #include <utility>
-#include <bitfileextractor.hpp>
+#include <bit7z/bitfileextractor.hpp>
 #include <fmt/format.h>
-#include <bitarchivereader.hpp>
+#include <bit7z/bitarchivereader.hpp>
 
 static const unsigned char key_xor_table[] = {
         0x94, 0xce, 0xc3, 0xae, 0x73, 0xf9, 0xf1, 0xb9
