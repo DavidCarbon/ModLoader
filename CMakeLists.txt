@@ -28,12 +28,7 @@ CPMAddPackage("gh:fmtlib/fmt#11.2.0")
 # cpr library 
 CPMAddPackage("gh:libcpr/cpr#1.12.0")
 # bit7z library
-# Manually configure bit7z as a pre-built library, since CPM cannot build it properly. (Version 3.0.0 and Later can)
-add_library(bit7z STATIC IMPORTED)
-set_target_properties(bit7z PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/libraries/bit7z/lib/bit7z.lib"
-    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/libraries/bit7z/include"
-)
+CPMAddPackage("gh:rikyoz/bit7z@3.2.0")
 # Detours library
 # Manually configure Detours as a pre-built library, since CPM cannot build it properly.
 add_library(detours STATIC IMPORTED)
