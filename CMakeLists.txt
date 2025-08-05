@@ -28,7 +28,7 @@ CPMAddPackage("gh:fmtlib/fmt#11.2.0")
 # cpr library 
 CPMAddPackage("gh:libcpr/cpr#1.12.0")
 # bit7z library
-add_subdirectory(libraries/bit7z)
+CPMAddPackage("gh:rikyoz/bit7z@2.1.0")
 # Detours library
 # Manually configure Detours as a pre-built library, since CPM cannot build it properly.
 add_library(detours STATIC IMPORTED)
@@ -64,8 +64,6 @@ add_library(ModLoader SHARED
     src/patches/bypass_patches.hpp
     src/patches/custom_crash_handler.hpp src/patches/custom_crash_handler.cpp
 )
-
-target_include_directories(ModLoader PRIVATE libraries/bit7z/include)
 
 # --- Link all targets using modern, consistent names ---
 target_link_libraries(ModLoader PRIVATE
