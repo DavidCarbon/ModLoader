@@ -54,8 +54,8 @@ if(NOT EXISTS "${BIT7Z_EXTRACTED_SUBDIR}")
     # Use 7z.exe to extract the archive to a specific directory.
     # The -o flag is the issue, so we are passing the path with proper quoting and no trailing slash.
     execute_process(
-        COMMAND 7z x "${BIT7Z_ARCHIVE_PATH}" -o"${BIT7Z_EXTRACT_DIR}"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND 7z x "${BIT7Z_ARCHIVE_PATH}"
+        WORKING_DIRECTORY "${BIT7Z_EXTRACT_DIR}"
         RESULT_VARIABLE _result
     )
     if(NOT _result EQUAL "0")
