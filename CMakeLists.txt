@@ -28,47 +28,11 @@ CPMAddPackage("gh:fmtlib/fmt#11.2.0")
 # cpr library 
 CPMAddPackage("gh:libcpr/cpr#1.12.0")
 # bit7z library
-# Define a directory for extracted dependencies
-set(DEPENDENCY_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/extracted_deps")
-# Define the paths for the archive and extracted content
-set(BIT7Z_ARCHIVE_FILENAME "bit7z-v2.1.0-msvc2015_mt_x86.7z")
-set(BIT7Z_EXTRACT_DIR "${DEPENDENCY_ROOT_DIR}/bit7z")
-set(BIT7Z_ARCHIVE_PATH "${BIT7Z_EXTRACT_DIR}/${BIT7Z_ARCHIVE_FILENAME}")
-set(BIT7Z_EXTRACTED_SUBDIR "${BIT7Z_EXTRACT_DIR}/bit7z-v2.1.0-msvc2015_mt_x86")
-# Check if the extracted files already exist
-if(NOT EXISTS "${BIT7Z_EXTRACTED_SUBDIR}")
-    message(STATUS "Downloading bit7z archive...")
-	# Create the directory for the download and extraction
-    file(MAKE_DIRECTORY "${BIT7Z_EXTRACT_DIR}")
-    file(DOWNLOAD
-        https://github.com/rikyoz/bit7z/releases/download/v2.1.0/${BIT7Z_ARCHIVE_FILENAME}
-        "${BIT7Z_ARCHIVE_PATH}"
-        STATUS download_status
-        EXPECTED_HASH SHA256=410ac77d059f8d9b47b25ed196601d3e5392070d57846dbc1ed981c7d78b4099
-    )
-    if(NOT download_status EQUAL "0")
-        message(FATAL_ERROR "Failed to download bit7z archive.")
-    endif()
-
-    message(STATUS "Extracting bit7z archive...")
-    # Use 7z.exe to extract the archive to a specific directory.
-    # The -o flag is the issue, so we are passing the path with proper quoting and no trailing slash.
-    execute_process(
-        COMMAND 7z x "${BIT7Z_ARCHIVE_PATH}"
-        WORKING_DIRECTORY "${BIT7Z_EXTRACT_DIR}"
-        RESULT_VARIABLE _result
-    )
-    if(NOT _result EQUAL "0")
-        message(FATAL_ERROR "Failed to extract bit7z archive.")
-    endif()
-endif()
-
-set(BIT7Z_INCLUDE_DIR "${BIT7Z_EXTRACTED_SUBDIR}/include")
-set(BIT7Z_LIBRARY_PATH "${BIT7Z_EXTRACTED_SUBDIR}/lib/bit7z.lib")
-# Define an IMPORTED library target for bit7z
+# Manually configure bit7z as a pre-built library, since CPM cannot build it properly. (Version 3.0.0 and Later can)
 add_library(bit7z STATIC IMPORTED)
 set_target_properties(bit7z PROPERTIES
-    IMPORTED_LOCATION "${BIT7Z_LIBRARY_PATH}"
+    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/libraries/bit7z/lib/bit7z.lib"
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/libraries/bit7z/include"
 )
 # Detours library
 # Manually configure Detours as a pre-built library, since CPM cannot build it properly.
@@ -105,8 +69,6 @@ add_library(ModLoader SHARED
     src/patches/bypass_patches.hpp
     src/patches/custom_crash_handler.hpp src/patches/custom_crash_handler.cpp
 )
-
-target_include_directories(ModLoader PRIVATE "${BIT7Z_INCLUDE_DIR}")
 
 # --- Link all targets using modern, consistent names ---
 target_link_libraries(ModLoader PRIVATE
