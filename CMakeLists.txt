@@ -34,13 +34,12 @@ set(DEPENDENCY_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/extracted_deps")
 set(BIT7Z_ARCHIVE_FILENAME "bit7z-v2.1.0-msvc2015_mt_x86.7z")
 set(BIT7Z_EXTRACT_DIR "${DEPENDENCY_ROOT_DIR}/bit7z")
 set(BIT7Z_ARCHIVE_PATH "${BIT7Z_EXTRACT_DIR}/${BIT7Z_ARCHIVE_FILENAME}")
-
+set(BIT7Z_EXTRACTED_SUBDIR "${BIT7Z_EXTRACT_DIR}/bit7z-v2.1.0-msvc2015_mt_x86")
 # Check if the extracted files already exist
-if(NOT EXISTS "${BIT7Z_EXTRACT_DIR}/bit7z-v2.1.0-msvc2015_mt_x86")
+if(NOT EXISTS "${BIT7Z_EXTRACTED_SUBDIR}")
     message(STATUS "Downloading bit7z archive...")
-    # Create the directory for the download and extraction
+	# Create the directory for the download and extraction
     file(MAKE_DIRECTORY "${BIT7Z_EXTRACT_DIR}")
-    # Use CMake's file(DOWNLOAD) command to get the file directly
     file(DOWNLOAD
         https://github.com/rikyoz/bit7z/releases/download/v2.1.0/${BIT7Z_ARCHIVE_FILENAME}
         "${BIT7Z_ARCHIVE_PATH}"
@@ -52,21 +51,22 @@ if(NOT EXISTS "${BIT7Z_EXTRACT_DIR}/bit7z-v2.1.0-msvc2015_mt_x86")
     endif()
 
     message(STATUS "Extracting bit7z archive...")
-    # Use 7z.exe to extract the archive. Adjust this command if 7z is not in your PATH.
+    # Use 7z.exe to extract the archive to a specific directory.
+    # The -o flag is the issue, so we are passing the path with proper quoting and no trailing slash.
     execute_process(
-        COMMAND 7z x -o"${BIT7Z_EXTRACT_DIR}" "${BIT7Z_ARCHIVE_PATH}"
+        COMMAND 7z x "${BIT7Z_ARCHIVE_PATH}" -o"${BIT7Z_EXTRACT_DIR}"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         RESULT_VARIABLE _result
+        # The VERBATIM flag is crucial here to prevent unintended path modifications.
+        VERBATIM
     )
     if(NOT _result EQUAL "0")
         message(FATAL_ERROR "Failed to extract bit7z archive.")
     endif()
 endif()
 
-# Define the paths for the extracted content
-set(BIT7Z_INCLUDE_DIR "${BIT7Z_EXTRACT_DIR}/bit7z-v2.1.0-msvc2015_mt_x86/include")
-set(BIT7Z_LIBRARY_PATH "${BIT7Z_EXTRACT_DIR}/bit7z-v2.1.0-msvc2015_mt_x86/lib/bit7z.lib")
-
+set(BIT7Z_INCLUDE_DIR "${BIT7Z_EXTRACTED_SUBDIR}/include")
+set(BIT7Z_LIBRARY_PATH "${BIT7Z_EXTRACTED_SUBDIR}/lib/bit7z.lib")
 # Define an IMPORTED library target for bit7z
 add_library(bit7z STATIC IMPORTED)
 set_target_properties(bit7z PROPERTIES
