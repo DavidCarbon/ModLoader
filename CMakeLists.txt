@@ -57,8 +57,6 @@ if(NOT EXISTS "${BIT7Z_EXTRACTED_SUBDIR}")
         COMMAND 7z x "${BIT7Z_ARCHIVE_PATH}" -o"${BIT7Z_EXTRACT_DIR}"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         RESULT_VARIABLE _result
-        # The VERBATIM flag is crucial here to prevent unintended path modifications.
-        VERBATIM
     )
     if(NOT _result EQUAL "0")
         message(FATAL_ERROR "Failed to extract bit7z archive.")
