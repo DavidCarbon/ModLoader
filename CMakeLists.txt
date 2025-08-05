@@ -69,8 +69,8 @@ set(BIT7Z_LIBRARY_PATH "${BIT7Z_EXTRACTED_SUBDIR}/lib/bit7z.lib")
 add_library(bit7z STATIC IMPORTED)
 set_target_properties(bit7z PROPERTIES
     IMPORTED_LOCATION "${BIT7Z_LIBRARY_PATH}"
-    INTERFACE_INCLUDE_DIRECTORIES "${BIT7Z_INCLUDE_DIR}"
 )
+target_include_directories(bit7z PUBLIC "${BIT7Z_INCLUDE_DIR}")
 # Detours library
 # Manually configure Detours as a pre-built library, since CPM cannot build it properly.
 add_library(detours STATIC IMPORTED)
