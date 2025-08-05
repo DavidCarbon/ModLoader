@@ -10,7 +10,7 @@
 #include <fstream>
 #include <memory>
 #include <utility>
-#include <bitfileextractor.hpp>
+#include <bitextractor.hpp>
 #include <fmt/format.h>
 #include <bitarchiveinfo.hpp>
 
