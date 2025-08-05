@@ -70,7 +70,6 @@ add_library(bit7z STATIC IMPORTED)
 set_target_properties(bit7z PROPERTIES
     IMPORTED_LOCATION "${BIT7Z_LIBRARY_PATH}"
 )
-target_include_directories(bit7z PUBLIC "${BIT7Z_INCLUDE_DIR}")
 # Detours library
 # Manually configure Detours as a pre-built library, since CPM cannot build it properly.
 add_library(detours STATIC IMPORTED)
@@ -106,6 +105,8 @@ add_library(ModLoader SHARED
     src/patches/bypass_patches.hpp
     src/patches/custom_crash_handler.hpp src/patches/custom_crash_handler.cpp
 )
+
+target_include_directories(ModLoader PRIVATE "${BIT7Z_INCLUDE_DIR}")
 
 # --- Link all targets using modern, consistent names ---
 target_link_libraries(ModLoader PRIVATE
